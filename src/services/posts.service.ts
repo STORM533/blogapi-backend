@@ -1,3 +1,5 @@
+import { AppError } from "../errors/AppError.js";
+import { Prisma } from "../generated/prisma/client.js";
 import prisma from "../lib/prisma.js";
 
 export const getPostById = async (id: string) => {
@@ -24,4 +26,64 @@ export const createPost = async (
   });
 
   return post;
+};
+export const getPublishedPosts = async () => {
+  const posts = await prisma.post.findMany({
+    where: {
+      published: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return posts;
+};
+export const updatePost = async (
+  id: string,
+  title: string,
+  content: string,
+) => {
+  try {
+    const post = await prisma.post.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        title,
+        content,
+      },
+    });
+
+    return post;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new AppError("Post not found", 404);
+    }
+
+    throw error;
+  }
+};
+export const deletePost = async (id: string) => {
+  try {
+    const post = await prisma.post.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return post;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new AppError("Post not found", 404);
+    }
+
+    throw error;
+  }
 };
