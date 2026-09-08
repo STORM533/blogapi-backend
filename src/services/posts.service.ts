@@ -1,10 +1,27 @@
-export const getPostById = (id: string) => {
-  if (id === "1") {
-    return {
-      id: "1",
-      title: "my first post",
-      content: "Welcome to my BLOG",
-    };
-  }
-  return null;
+import prisma from "../lib/prisma.js";
+
+export const getPostById = async (id: string) => {
+  const post = await prisma.post.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
+
+  return post;
+};
+
+export const createPost = async (
+  title: string,
+  content: string,
+  authorId: number,
+) => {
+  const post = await prisma.post.create({
+    data: {
+      title,
+      content,
+      authorId,
+    },
+  });
+
+  return post;
 };
