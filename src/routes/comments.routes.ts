@@ -1,15 +1,13 @@
 import { Router } from "express";
 import { body } from "express-validator";
-
 import {
   createComment,
   deleteComment,
   getComments,
   updateComment,
 } from "../controllers/comments.controller.js";
-
+import { authenticateJWT } from "../middleware/auth.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-
 import type {
   CommentBody,
   CommentParams,
@@ -22,7 +20,7 @@ commentsRouter.get<PostCommentParams>("/posts/:postId/comments", getComments);
 
 commentsRouter.post<PostCommentParams, object, CommentBody>(
   "/posts/:postId/comments",
-
+  authenticateJWT,
   body("content")
     .isString()
     .withMessage("Content must be a string")
@@ -38,7 +36,7 @@ commentsRouter.post<PostCommentParams, object, CommentBody>(
 
 commentsRouter.patch<CommentParams, object, CommentBody>(
   "/comments/:id",
-
+  authenticateJWT,
   body("content")
     .isString()
     .withMessage("Content must be a string")
@@ -52,6 +50,6 @@ commentsRouter.patch<CommentParams, object, CommentBody>(
   updateComment,
 );
 
-commentsRouter.delete<CommentParams>("/comments/:id", deleteComment);
+commentsRouter.delete<CommentParams>("/comments/:id",authenticateJWT, deleteComment);
 
 export { commentsRouter };

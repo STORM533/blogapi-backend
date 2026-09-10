@@ -4,7 +4,7 @@ import prisma from "../lib/prisma.js";
 
 export const getPostById = async (id: number) => {
   const post = await prisma.post.findUnique({
-    where: { id },
+    where: { id, published: true },
   });
   if (!post) {
     throw new AppError("Post not found", 404);

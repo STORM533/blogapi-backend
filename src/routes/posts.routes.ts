@@ -1,7 +1,8 @@
 import { Router } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
 import { body, param, query } from "express-validator";
-import {authenticateJWT} from "../middleware/auth.js";
+import { Role } from "../generated/prisma/client.js";
+import { requireRole } from "../middleware/authorize.js";
 import {
   createPost,
   deletePost,
@@ -9,6 +10,7 @@ import {
   getPosts,
   updatePost,
 } from "../controllers/posts.controller.js";
+import { authenticateJWT } from "../middleware/auth.js";
 
 import { validateRequest } from "../middleware/validateRequest.js";
 
@@ -48,7 +50,8 @@ postsRouter.get<PostParams>(
 
 postsRouter.post<ParamsDictionary, object, CreatePostBody>(
   "/",
-
+  authenticateJWT,
+  requireRole(Role.AUTHOR),
   body("title")
     .isString()
     .withMessage("Title must be String")
@@ -68,7 +71,7 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
     .notEmpty()
     .withMessage("Content is Required")
     .bail(),
-  authenticateJWT,
+
   validateRequest,
 
   createPost,
@@ -76,6 +79,8 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
 
 postsRouter.patch<PostParams, object, UpdatePostBody>(
   "/:id",
+  authenticateJWT,
+  requireRole(Role.AUTHOR),
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
 
   body().custom((_, { req }) => {
@@ -114,7 +119,8 @@ postsRouter.patch<PostParams, object, UpdatePostBody>(
 
 postsRouter.delete<PostParams>(
   "/:id",
-
+  authenticateJWT,
+  requireRole(Role.AUTHOR),
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
 
   validateRequest,

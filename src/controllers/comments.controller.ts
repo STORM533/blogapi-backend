@@ -28,8 +28,11 @@ export const createComment = async (
 ) => {
   const { content } = req.body;
 
-  // Temporary until JWT authentication exists.
-  const userId = 1;
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const userId = req.user.id;
 
   const comment = await createCommentService(
     content,
