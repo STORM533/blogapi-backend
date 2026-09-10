@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import { login, signup } from "../controllers/auth.controller.js";
+import { authLimiter } from "../middleware/rateLimiter.js";
 import { validateRequest } from "../middleware/validateRequest.js";
-
 const authRouter = Router();
 
 authRouter.post(
   "/signup",
-
+  authLimiter,
   body("username")
     .trim()
     .isString()
@@ -31,7 +31,7 @@ authRouter.post(
 
 authRouter.post(
   "/login",
-
+  authLimiter,
   body("username").trim().notEmpty().withMessage("Username is required"),
 
   body("password").notEmpty().withMessage("Password is required"),
