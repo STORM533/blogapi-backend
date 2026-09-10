@@ -31,7 +31,7 @@ interface CreatePostBody {
 }
 
 export const createPost = async (
-  req: Request<{}, {}, CreatePostBody>,
+  req: Request<object,object, CreatePostBody>,
   res: Response,
 ) => {
   const { title, content } = req.body;
@@ -53,7 +53,7 @@ interface UpdatePostBody {
 }
 
 export const updatePost = async (
-  req: Request<PostParams, {}, UpdatePostBody>,
+  req: Request<PostParams, object, UpdatePostBody>,
   res: Response,
 ) => {
   const { title, content } = req.body;
