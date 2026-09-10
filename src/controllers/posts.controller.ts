@@ -28,8 +28,11 @@ export const createPost = async (
   res: Response,
 ) => {
   const { title, content } = req.body;
-
-  const post = await createPostService(title, content, 1);
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const authorId = req.user.id;
+  const post = await createPostService(title, content, authorId);
 
   res.status(201).json(post);
 };

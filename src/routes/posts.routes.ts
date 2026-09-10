@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
 import { body, param, query } from "express-validator";
-
+import {authenticateJWT} from "../middleware/auth.js";
 import {
   createPost,
   deletePost,
@@ -68,7 +68,7 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
     .notEmpty()
     .withMessage("Content is Required")
     .bail(),
-
+  authenticateJWT,
   validateRequest,
 
   createPost,
