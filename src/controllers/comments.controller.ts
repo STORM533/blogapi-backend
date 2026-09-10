@@ -7,30 +7,23 @@ import {
   updateComment as updateCommentService,
 } from "../services/comments.service.js";
 
-interface PostParams {
-  postId: string;
-}
+import type {
+  CommentBody,
+  CommentParams,
+  PostCommentParams,
+} from "../types/comments.js";
 
-interface CommentParams {
-  id: string;
-}
-
-interface CreateCommentBody {
-  content: string;
-}
-
-interface UpdateCommentBody {
-  content: string;
-}
-
-export const getComments = async (req: Request<PostParams>, res: Response) => {
+export const getComments = async (
+  req: Request<PostCommentParams>,
+  res: Response,
+) => {
   const comments = await getCommentsByPostId(req.params.postId);
 
   res.json(comments);
 };
 
 export const createComment = async (
-  req: Request<PostParams, object, CreateCommentBody>,
+  req: Request<PostCommentParams, object, CommentBody>,
   res: Response,
 ) => {
   const { content } = req.body;
@@ -48,7 +41,7 @@ export const createComment = async (
 };
 
 export const updateComment = async (
-  req: Request<CommentParams, object, UpdateCommentBody>,
+  req: Request<CommentParams, object, CommentBody>,
   res: Response,
 ) => {
   const { content } = req.body;

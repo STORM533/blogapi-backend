@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { ParamsDictionary } from "express-serve-static-core";
 
 import { AppError } from "../errors/AppError.js";
 
@@ -10,10 +11,12 @@ import {
   updatePost as updatePostService,
 } from "../services/posts.service.js";
 
-interface PostParams {
-  [key: string]: string;
-  id: string;
-}
+import type {
+  CreatePostBody,
+  PostParams,
+  PostsQuery,
+  UpdatePostBody,
+} from "../types/posts.js";
 
 export const getPost = async (req: Request<PostParams>, res: Response) => {
   const post = await getPostById(req.params.id);
@@ -24,11 +27,6 @@ export const getPost = async (req: Request<PostParams>, res: Response) => {
 
   res.json(post);
 };
-
-interface CreatePostBody {
-  title: string;
-  content: string;
-}
 
 export const createPost = async (
   req: Request<object, object, CreatePostBody>,
@@ -41,7 +39,10 @@ export const createPost = async (
   res.status(201).json(post);
 };
 
-export const getPosts = async (req: Request, res: Response) => {
+export const getPosts = async (
+  req: Request<ParamsDictionary, object, object, PostsQuery>,
+  res: Response,
+) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
@@ -49,11 +50,6 @@ export const getPosts = async (req: Request, res: Response) => {
 
   res.json(posts);
 };
-
-interface UpdatePostBody {
-  title: string;
-  content: string;
-}
 
 export const updatePost = async (
   req: Request<PostParams, object, UpdatePostBody>,
@@ -65,6 +61,7 @@ export const updatePost = async (
 
   res.json(post);
 };
+
 export const deletePost = async (req: Request<PostParams>, res: Response) => {
   await deletePostService(req.params.id);
 

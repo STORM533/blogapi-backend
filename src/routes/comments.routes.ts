@@ -10,32 +10,24 @@ import {
 
 import { validateRequest } from "../middleware/validateRequest.js";
 
+import type {
+  CommentBody,
+  CommentParams,
+  PostCommentParams,
+} from "../types/comments.js";
+
 const commentsRouter = Router();
 
-interface PostParams {
-  [key: string]: string;
-  postId: string;
-}
+commentsRouter.get<PostCommentParams>("/posts/:postId/comments", getComments);
 
-interface CommentParams {
-  [key: string]: string;
-  id: string;
-}
-
-interface CommentBody {
-  content: string;
-}
-
-commentsRouter.get<PostParams>("/posts/:postId/comments", getComments);
-
-commentsRouter.post<PostParams, object, CommentBody>(
+commentsRouter.post<PostCommentParams, object, CommentBody>(
   "/posts/:postId/comments",
 
   body("content")
-    .trim()
     .isString()
     .withMessage("Content must be a string")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Content cannot be empty"),
 
@@ -48,10 +40,10 @@ commentsRouter.patch<CommentParams, object, CommentBody>(
   "/comments/:id",
 
   body("content")
-    .trim()
     .isString()
     .withMessage("Content must be a string")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Content cannot be empty"),
 

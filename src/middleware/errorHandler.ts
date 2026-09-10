@@ -8,6 +8,8 @@ const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  void next;
+
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       message: err.message,

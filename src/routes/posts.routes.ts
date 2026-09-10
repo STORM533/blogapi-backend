@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { ParamsDictionary } from "express-serve-static-core";
 import { body, query } from "express-validator";
 
 import {
@@ -8,16 +9,19 @@ import {
   getPosts,
   updatePost,
 } from "../controllers/posts.controller.js";
+
 import { validateRequest } from "../middleware/validateRequest.js";
 
-interface PostParams {
-  [key: string]: string;
-  id: string;
-}
+import type {
+  CreatePostBody,
+  PostParams,
+  PostsQuery,
+  UpdatePostBody,
+} from "../types/posts.js";
 
 const postsRouter = Router();
 
-postsRouter.get(
+postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
   "/",
 
   query("page")
@@ -35,15 +39,16 @@ postsRouter.get(
   getPosts,
 );
 
-postsRouter.get("/:id", getPost);
+postsRouter.get<PostParams>("/:id", getPost);
 
-postsRouter.post(
+postsRouter.post<ParamsDictionary, object, CreatePostBody>(
   "/",
+
   body("title")
-    .trim()
     .isString()
     .withMessage("Title must be String")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Title is Required")
     .bail()
@@ -51,25 +56,36 @@ postsRouter.post(
     .withMessage("Title must be at most 200 characters"),
 
   body("content")
-    .trim()
     .isString()
     .withMessage("Content must be String")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Content is Required")
     .bail(),
 
   validateRequest,
+
   createPost,
 );
 
-postsRouter.patch<PostParams>(
+postsRouter.patch<PostParams, object, UpdatePostBody>(
   "/:id",
+
+  body().custom((_, { req }) => {
+    if (req.body.title === undefined && req.body.content === undefined) {
+      throw new Error("At least one of title or content is required");
+    }
+
+    return true;
+  }),
+
   body("title")
-    .trim()
+    .optional()
     .isString()
     .withMessage("Title must be a string")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Title cannot be empty")
     .bail()
@@ -77,15 +93,19 @@ postsRouter.patch<PostParams>(
     .withMessage("Title must be at most 200 characters"),
 
   body("content")
-    .trim()
+    .optional()
     .isString()
     .withMessage("Content must be a string")
     .bail()
+    .trim()
     .notEmpty()
     .withMessage("Content cannot be empty"),
 
   validateRequest,
+
   updatePost,
 );
-postsRouter.delete("/:id", deletePost);
+
+postsRouter.delete<PostParams>("/:id", deletePost);
+
 export { postsRouter };
