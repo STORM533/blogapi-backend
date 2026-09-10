@@ -17,6 +17,7 @@ import type {
   CommentParams,
   PostCommentParams,
 } from "../types/comments.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const commentsRouter = Router();
 
@@ -35,7 +36,7 @@ commentsRouter.post<PostCommentParams, object, CommentBody>(
 
   validateRequest,
 
-  createComment,
+  asyncHandler(createComment),
 );
 
 commentsRouter.patch<CommentParams, object, CommentBody>(
@@ -52,14 +53,14 @@ commentsRouter.patch<CommentParams, object, CommentBody>(
 
   validateRequest,
 
-  updateComment,
+  asyncHandler(updateComment),
 );
 
 commentsRouter.delete<CommentParams>(
   "/comments/:id",
   authenticateJWT,
   canDeleteComment,
-  deleteComment,
+  asyncHandler(deleteComment),
 );
 
 export { commentsRouter };

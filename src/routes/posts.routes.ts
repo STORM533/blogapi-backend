@@ -20,6 +20,7 @@ import type {
   PostsQuery,
   UpdatePostBody,
 } from "../types/posts.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const postsRouter = Router();
 
@@ -38,14 +39,14 @@ postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
 
   validateRequest,
 
-  getPosts,
+  asyncHandler(getPosts),
 );
 
 postsRouter.get<PostParams>(
   "/:id",
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
   validateRequest,
-  getPost,
+  asyncHandler(getPost),
 );
 
 postsRouter.post<ParamsDictionary, object, CreatePostBody>(
@@ -74,7 +75,7 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
 
   validateRequest,
 
-  createPost,
+  asyncHandler(createPost),
 );
 
 postsRouter.patch<PostParams, object, UpdatePostBody>(
@@ -114,7 +115,7 @@ postsRouter.patch<PostParams, object, UpdatePostBody>(
 
   validateRequest,
 
-  updatePost,
+  asyncHandler(updatePost),
 );
 
 postsRouter.delete<PostParams>(
@@ -124,7 +125,7 @@ postsRouter.delete<PostParams>(
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
 
   validateRequest,
-  deletePost,
+  asyncHandler(deletePost),
 );
 
 export { postsRouter };
