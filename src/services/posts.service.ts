@@ -2,13 +2,13 @@ import { AppError } from "../errors/AppError.js";
 import { Prisma } from "../generated/prisma/client.js";
 import prisma from "../lib/prisma.js";
 
-export const getPostById = async (id: string) => {
+export const getPostById = async (id: number) => {
   const post = await prisma.post.findUnique({
-    where: {
-      id: Number(id),
-    },
+    where: { id },
   });
-
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
   return post;
 };
 
@@ -42,22 +42,18 @@ export const getPublishedPosts = async (page: number, limit: number) => {
   return posts;
 };
 export const updatePost = async (
-  id: string,
+  id: number,
   title?: string,
   content?: string,
 ) => {
   try {
-    const post = await prisma.post.update({
-      where: {
-        id: Number(id),
-      },
+    return await prisma.post.update({
+      where: { id },
       data: {
         ...(title !== undefined && { title }),
         ...(content !== undefined && { content }),
       },
     });
-
-    return post;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -69,15 +65,11 @@ export const updatePost = async (
     throw error;
   }
 };
-export const deletePost = async (id: string) => {
+export const deletePost = async (id: number) => {
   try {
-    const post = await prisma.post.delete({
-      where: {
-        id: Number(id),
-      },
+    return await prisma.post.delete({
+      where: { id },
     });
-
-    return post;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

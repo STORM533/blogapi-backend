@@ -1,8 +1,6 @@
 import type { Request, Response } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
 
-import { AppError } from "../errors/AppError.js";
-
 import {
   createPost as createPostService,
   deletePost as deletePostService,
@@ -19,15 +17,12 @@ import type {
 } from "../types/posts.js";
 
 export const getPost = async (req: Request<PostParams>, res: Response) => {
-  const post = await getPostById(req.params.id);
+  const id = Number(req.params.id);
 
-  if (!post) {
-    throw new AppError("Post not found", 404);
-  }
+  const post = await getPostById(id);
 
   res.json(post);
 };
-
 export const createPost = async (
   req: Request<object, object, CreatePostBody>,
   res: Response,
@@ -55,15 +50,17 @@ export const updatePost = async (
   req: Request<PostParams, object, UpdatePostBody>,
   res: Response,
 ) => {
+  const id = Number(req.params.id);
   const { title, content } = req.body;
 
-  const post = await updatePostService(req.params.id, title, content);
+  const post = await updatePostService(id, title, content);
 
   res.json(post);
 };
-
 export const deletePost = async (req: Request<PostParams>, res: Response) => {
-  await deletePostService(req.params.id);
+  const id = Number(req.params.id);
+
+  await deletePostService(id);
 
   res.status(204).send();
 };

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
-import { body, query } from "express-validator";
+import { body, param, query } from "express-validator";
 
 import {
   createPost,
@@ -39,7 +39,12 @@ postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
   getPosts,
 );
 
-postsRouter.get<PostParams>("/:id", getPost);
+postsRouter.get<PostParams>(
+  "/:id",
+  param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
+  validateRequest,
+  getPost,
+);
 
 postsRouter.post<ParamsDictionary, object, CreatePostBody>(
   "/",
@@ -71,6 +76,7 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
 
 postsRouter.patch<PostParams, object, UpdatePostBody>(
   "/:id",
+  param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
 
   body().custom((_, { req }) => {
     if (req.body.title === undefined && req.body.content === undefined) {
@@ -106,6 +112,13 @@ postsRouter.patch<PostParams, object, UpdatePostBody>(
   updatePost,
 );
 
-postsRouter.delete<PostParams>("/:id", deletePost);
+postsRouter.delete<PostParams>(
+  "/:id",
+
+  param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
+
+  validateRequest,
+  deletePost,
+);
 
 export { postsRouter };
