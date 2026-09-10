@@ -27,7 +27,7 @@ export const createPost = async (
 
   return post;
 };
-export const getPublishedPosts = async () => {
+export const getPublishedPosts = async (page: number, limit: number) => {
   const posts = await prisma.post.findMany({
     where: {
       published: true,
@@ -35,6 +35,8 @@ export const getPublishedPosts = async () => {
     orderBy: {
       createdAt: "desc",
     },
+    skip: (page - 1) * limit,
+    take: limit,
   });
 
   return posts;

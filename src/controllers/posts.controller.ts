@@ -31,7 +31,7 @@ interface CreatePostBody {
 }
 
 export const createPost = async (
-  req: Request<object,object, CreatePostBody>,
+  req: Request<object, object, CreatePostBody>,
   res: Response,
 ) => {
   const { title, content } = req.body;
@@ -42,7 +42,10 @@ export const createPost = async (
 };
 
 export const getPosts = async (req: Request, res: Response) => {
-  const posts = await getPublishedPosts();
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+
+  const posts = await getPublishedPosts(page, limit);
 
   res.json(posts);
 };
