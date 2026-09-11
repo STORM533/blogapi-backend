@@ -1,14 +1,39 @@
 import { AppError } from "../errors/AppError.js";
-import { Prisma } from "../generated/prisma/client.js";
+import { Prisma, Role } from "../generated/prisma/client.js";
 import prisma from "../lib/prisma.js";
 
-export const getCommentsByPostId = async (postId: string) => {
+export const getCommentsByPostId = async (postId: string, role?: Role) => {
+  const post = await prisma.post.findFirst({
+    where:
+      role === Role.AUTHOR
+        ? { id: Number(postId) }
+        : {
+            id: Number(postId),
+            published: true,
+          },
+  });
+
+  if (!post) {
+    throw new AppError("Post not found", 404);
+  }
+
   return prisma.comment.findMany({
     where: {
       postId: Number(postId),
     },
     orderBy: {
       createdAt: "desc",
+    },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
     },
   });
 };
@@ -17,11 +42,16 @@ export const createComment = async (
   content: string,
   postId: string,
   userId: number,
+  role?: Role,
 ) => {
-  const post = await prisma.post.findUnique({
-    where: {
-      id: Number(postId),
-    },
+  const post = await prisma.post.findFirst({
+    where:
+      role === Role.AUTHOR
+        ? { id: Number(postId) }
+        : {
+            id: Number(postId),
+            published: true,
+          },
   });
 
   if (!post) {

@@ -18,10 +18,11 @@ import type {
   PostCommentParams,
 } from "../types/comments.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { optionalAuthenticateJWT } from "../middleware/optionalAuth.js";
 
 const commentsRouter = Router();
 
-commentsRouter.get<PostCommentParams>("/posts/:postId/comments", getComments);
+commentsRouter.get<PostCommentParams>("/posts/:postId/comments",optionalAuthenticateJWT, getComments);
 
 commentsRouter.post<PostCommentParams, object, CommentBody>(
   "/posts/:postId/comments",

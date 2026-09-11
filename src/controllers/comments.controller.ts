@@ -17,7 +17,7 @@ export const getComments = async (
   req: Request<PostCommentParams>,
   res: Response,
 ) => {
-  const comments = await getCommentsByPostId(req.params.postId);
+  const comments = await getCommentsByPostId(req.params.postId, req.user?.role);
 
   res.json(comments);
 };
@@ -38,6 +38,7 @@ export const createComment = async (
     content,
     req.params.postId,
     userId,
+    req.user.role,
   );
 
   res.status(201).json(comment);
