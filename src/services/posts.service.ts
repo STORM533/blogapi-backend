@@ -63,6 +63,20 @@ export const createPost = async (
       content,
       authorId,
     },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+    },
   });
 
   return post;
@@ -131,6 +145,20 @@ export const updatePost = async (
         ...(title !== undefined && { title }),
         ...(content !== undefined && { content }),
       },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
     });
   } catch (error) {
     if (
@@ -165,6 +193,20 @@ export const setPostPublished = async (id: number, published: boolean) => {
       where: { id },
       data: {
         published,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
   } catch (error) {

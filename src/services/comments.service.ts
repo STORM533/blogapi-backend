@@ -64,6 +64,17 @@ export const createComment = async (
       postId: Number(postId),
       userId,
     },
+    select: {
+      id: true,
+      content: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+    },
   });
 };
 
@@ -75,6 +86,17 @@ export const updateComment = async (id: string, content: string) => {
       },
       data: {
         content,
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
   } catch (error) {

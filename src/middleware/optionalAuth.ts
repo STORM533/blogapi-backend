@@ -1,6 +1,6 @@
 //Handles guest and user and author
 import type { RequestHandler } from "express";
-import { authenticateJWT } from "./auth.js";
+import passport from "passport";
 
 export const optionalAuthenticateJWT: RequestHandler = (req, res, next) => {
   if (!req.headers.authorization) {
@@ -8,5 +8,14 @@ export const optionalAuthenticateJWT: RequestHandler = (req, res, next) => {
     return;
   }
 
-  authenticateJWT(req, res, next);
+  passport.authenticate(
+    "jwt",
+    { session: false },
+    (err: unknown, user: Express.User | false) => {
+      if (!err && user) {
+        req.user = user;
+      }
+      next();
+    },
+  )(req, res, next);
 };

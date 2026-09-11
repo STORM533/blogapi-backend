@@ -11,6 +11,13 @@ passport.use(
     try {
       const user = await prisma.user.findUnique({
         where: { username },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+          password: true,
+        },
       });
 
       if (!user) {
@@ -23,7 +30,12 @@ passport.use(
         return done(new AppError("Invalid credentials", 401), false);
       }
 
-      return done(null, user);
+      return done(null, {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      });
     } catch (error) {
       return done(error);
     }
@@ -39,6 +51,12 @@ passport.use(
       try {
         const user = await prisma.user.findUnique({
           where: { id: payload.userId },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            role: true,
+          },
         });
 
         if (!user) {
