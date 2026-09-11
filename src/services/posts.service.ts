@@ -68,21 +68,56 @@ export const createPost = async (
   return post;
 };
 export const getPostsAll = async (page: number, limit: number, role?: Role) => {
-  const posts = await prisma.post.findMany({
-    where:
-      role === Role.AUTHOR
-        ? {}
-        : {
-            published: true,
-          },
-    orderBy: {
-      createdAt: "desc",
-    },
-    skip: (page - 1) * limit,
-    take: limit,
-  });
+  const where =
+    role === Role.AUTHOR
+      ? {}
+      : {
+          published: true,
+        };
 
-  return posts;
+  const [posts, total] = await prisma.$transaction([
+    prisma.post.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+      },
+    }),
+
+    prisma.post.count({
+      where,
+    }),
+  ]);
+
+  return {
+    posts,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 export const updatePost = async (
   id: number,
