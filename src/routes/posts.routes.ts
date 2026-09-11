@@ -1,32 +1,33 @@
 import { Router } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
 import { body, param, query } from "express-validator";
-import { Role } from "../generated/prisma/client.js";
-import { requireRole } from "../middleware/authorize.js";
 import {
   createPost,
   deletePost,
   getPost,
   getPosts,
+  setPostPublished,
   updatePost,
 } from "../controllers/posts.controller.js";
+import { Role } from "../generated/prisma/client.js";
 import { authenticateJWT } from "../middleware/auth.js";
+import { requireRole } from "../middleware/authorize.js";
 
 import { validateRequest } from "../middleware/validateRequest.js";
 
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { optionalAuthenticateJWT } from "../middleware/optionalAuth.js";
 import type {
   CreatePostBody,
   PostParams,
   PostsQuery,
   UpdatePostBody,
 } from "../types/posts.js";
-import { asyncHandler } from "../middleware/asyncHandler.js";
-
 const postsRouter = Router();
 
 postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
   "/",
-
+  optionalAuthenticateJWT,
   query("page")
     .optional()
     .isInt({ min: 1 })
@@ -44,6 +45,7 @@ postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
 
 postsRouter.get<PostParams>(
   "/:id",
+  optionalAuthenticateJWT,
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
   validateRequest,
   asyncHandler(getPost),
@@ -127,5 +129,16 @@ postsRouter.delete<PostParams>(
   validateRequest,
   asyncHandler(deletePost),
 );
-
+postsRouter.patch<PostParams, object, { published: boolean }>(
+  "/:id/publish",
+  authenticateJWT,
+  requireRole(Role.AUTHOR),
+  param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
+  body("published")
+    .isBoolean()
+    .withMessage("Published must be a boolean")
+    .toBoolean(),
+  validateRequest,
+  asyncHandler(setPostPublished),
+);
 export { postsRouter };

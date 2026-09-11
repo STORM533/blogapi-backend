@@ -1,14 +1,54 @@
 import { AppError } from "../errors/AppError.js";
-import { Prisma } from "../generated/prisma/client.js";
+import { Prisma, Role } from "../generated/prisma/client.js";
 import prisma from "../lib/prisma.js";
 
-export const getPostById = async (id: number) => {
+export const getPostById = async (id: number, role?: Role) => {
   const post = await prisma.post.findUnique({
-    where: { id, published: true },
+    where:
+      role === Role.AUTHOR
+        ? { id }
+        : {
+            id,
+            published: true,
+          },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+      comments: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+      },
+    },
   });
+
   if (!post) {
     throw new AppError("Post not found", 404);
   }
+
   return post;
 };
 
@@ -27,11 +67,14 @@ export const createPost = async (
 
   return post;
 };
-export const getPublishedPosts = async (page: number, limit: number) => {
+export const getPostsAll = async (page: number, limit: number, role?: Role) => {
   const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-    },
+    where:
+      role === Role.AUTHOR
+        ? {}
+        : {
+            published: true,
+          },
     orderBy: {
       createdAt: "desc",
     },
@@ -69,6 +112,25 @@ export const deletePost = async (id: number) => {
   try {
     return await prisma.post.delete({
       where: { id },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new AppError("Post not found", 404);
+    }
+
+    throw error;
+  }
+};
+export const setPostPublished = async (id: number, published: boolean) => {
+  try {
+    return await prisma.post.update({
+      where: { id },
+      data: {
+        published,
+      },
     });
   } catch (error) {
     if (

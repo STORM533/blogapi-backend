@@ -5,7 +5,8 @@ import {
   createPost as createPostService,
   deletePost as deletePostService,
   getPostById,
-  getPublishedPosts,
+  getPostsAll,
+  setPostPublished as setPostPublishedService,
   updatePost as updatePostService,
 } from "../services/posts.service.js";
 
@@ -19,7 +20,7 @@ import type {
 export const getPost = async (req: Request<PostParams>, res: Response) => {
   const id = Number(req.params.id);
 
-  const post = await getPostById(id);
+  const post = await getPostById(id, req.user?.role);
 
   res.json(post);
 };
@@ -44,7 +45,7 @@ export const getPosts = async (
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
-  const posts = await getPublishedPosts(page, limit);
+  const posts = await getPostsAll(page, limit, req.user?.role);
 
   res.json(posts);
 };
@@ -66,4 +67,14 @@ export const deletePost = async (req: Request<PostParams>, res: Response) => {
   await deletePostService(id);
 
   res.status(204).send();
+};
+export const setPostPublished = async (
+  req: Request<PostParams, object, { published: boolean }>,
+  res: Response,
+) => {
+  const id = Number(req.params.id);
+
+  const post = await setPostPublishedService(id, req.body.published);
+
+  res.json(post);
 };
