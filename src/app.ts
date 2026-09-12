@@ -9,6 +9,7 @@ import { commentsRouter } from "./routes/comments.routes.js";
 import { postsRouter } from "./routes/posts.routes.js";
 import { usersRouter } from "./routes/users.routes.js";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 const app = express();
 app.use(helmet());
 const corsOrigins = [
@@ -20,10 +21,12 @@ if (corsOrigins.length > 0) {
   app.use(
     cors({
       origin: corsOrigins,
+      credentials: true,
     }),
   );
 }
 app.use(express.json());
+app.use(cookieParser());
 app.use(apiLimiter);
 app.use(passport.initialize());
 

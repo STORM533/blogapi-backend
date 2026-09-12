@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { login, signup } from "../controllers/auth.controller.js";
+import { login, logout, signup } from "../controllers/auth.controller.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { authLimiter } from "../middleware/rateLimiter.js";
 import { validateRequest } from "../middleware/validateRequest.js";
+
 const authRouter = Router();
 
 authRouter.post(
@@ -40,5 +41,7 @@ authRouter.post(
   validateRequest,
   login,
 );
+
+authRouter.post("/logout", logout);
 
 export { authRouter };

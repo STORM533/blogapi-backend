@@ -41,10 +41,17 @@ passport.use(
     }
   }),
 );
+
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req) => {
+        let token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+        if (!token && req.cookies?.token) {
+          token = req.cookies.token;
+        }
+        return token;
+      },
       secretOrKey: process.env.JWT_SECRET!,
     },
     async (payload: JwtPayload, done) => {
@@ -70,5 +77,6 @@ passport.use(
     },
   ),
 );
+
 export const authenticateJWT = passport.authenticate("jwt", { session: false });
 export default passport;
