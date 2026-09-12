@@ -83,6 +83,12 @@ postsRouter.post<ParamsDictionary, object, CreatePostBody>(
     .withMessage("Content is Required")
     .bail(),
 
+  body("published")
+    .optional()
+    .isBoolean()
+    .withMessage("Published must be a boolean")
+    .toBoolean(),
+
   validateRequest,
 
   asyncHandler(createPost),

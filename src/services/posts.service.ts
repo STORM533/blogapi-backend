@@ -56,12 +56,14 @@ export const createPost = async (
   title: string,
   content: string,
   authorId: number,
+  published?: boolean,
 ) => {
   const post = await prisma.post.create({
     data: {
       title,
       content,
       authorId,
+      ...(published !== undefined && { published }),
     },
     select: {
       id: true,

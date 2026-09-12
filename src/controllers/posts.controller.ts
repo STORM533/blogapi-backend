@@ -29,12 +29,12 @@ export const createPost = async (
   req: Request<object, object, CreatePostBody>,
   res: Response,
 ) => {
-  const { title, content } = req.body;
+  const { title, content, published } = req.body;
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   const authorId = req.user.id;
-  const post = await createPostService(title, content, authorId);
+  const post = await createPostService(title, content, authorId, published);
 
   res.status(201).json(post);
 };

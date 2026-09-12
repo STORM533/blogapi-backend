@@ -6,6 +6,7 @@ export interface PostParams {
 export interface CreatePostBody {
   title: string;
   content: string;
+  published?: boolean;
 }
 
 export interface UpdatePostBody {
