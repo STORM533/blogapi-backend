@@ -56,9 +56,9 @@ export const updatePost = async (
   res: Response,
 ) => {
   const id = Number(req.params.id);
-  const { title, content } = req.body;
+  const { title, content, published } = req.body;
 
-  const post = await updatePostService(id, title, content);
+  const post = await updatePostService(id, title, content, published);
 
   res.json(post);
 };

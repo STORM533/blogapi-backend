@@ -12,6 +12,7 @@ export interface CreatePostBody {
 export interface UpdatePostBody {
   title?: string;
   content?: string;
+  published?: boolean;
 }
 
 export interface PostsQuery {

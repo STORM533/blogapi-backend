@@ -139,6 +139,7 @@ export const updatePost = async (
   id: number,
   title?: string,
   content?: string,
+  published?: boolean,
 ) => {
   try {
     return await prisma.post.update({
@@ -146,6 +147,7 @@ export const updatePost = async (
       data: {
         ...(title !== undefined && { title }),
         ...(content !== undefined && { content }),
+        ...(published !== undefined && { published }),
       },
       select: {
         id: true,
