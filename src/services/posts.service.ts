@@ -220,3 +220,18 @@ export const setPostPublished = async (id: number, published: boolean) => {
     throw error;
   }
 };
+
+export const getPostStats = async () => {
+  const [totalPosts, publishedPosts, totalComments] = await prisma.$transaction([
+    prisma.post.count(),
+    prisma.post.count({ where: { published: true } }),
+    prisma.comment.count(),
+  ]);
+
+  return {
+    totalPosts,
+    publishedPosts,
+    draftPosts: totalPosts - publishedPosts,
+    totalComments,
+  };
+};

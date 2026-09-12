@@ -6,6 +6,7 @@ import {
   deletePost,
   getPost,
   getPosts,
+  getStats,
   setPostPublished,
   updatePost,
 } from "../controllers/posts.controller.js";
@@ -41,6 +42,13 @@ postsRouter.get<ParamsDictionary, object, object, PostsQuery>(
   validateRequest,
 
   asyncHandler(getPosts),
+);
+
+postsRouter.get(
+  "/stats",
+  authenticateJWT,
+  requireRole(Role.AUTHOR),
+  asyncHandler(getStats),
 );
 
 postsRouter.get<PostParams>(

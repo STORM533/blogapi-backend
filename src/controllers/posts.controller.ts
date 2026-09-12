@@ -6,6 +6,7 @@ import {
   deletePost as deletePostService,
   getPostById,
   getPostsAll,
+  getPostStats as getPostStatsService,
   setPostPublished as setPostPublishedService,
   updatePost as updatePostService,
 } from "../services/posts.service.js";
@@ -77,4 +78,9 @@ export const setPostPublished = async (
   const post = await setPostPublishedService(id, req.body.published);
 
   res.json(post);
+};
+
+export const getStats = async (_req: Request, res: Response) => {
+  const stats = await getPostStatsService();
+  res.json(stats);
 };
