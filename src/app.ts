@@ -11,7 +11,18 @@ import { usersRouter } from "./routes/users.routes.js";
 import helmet from "helmet";
 const app = express();
 app.use(helmet());
-app.use(cors());
+const corsOrigins = [
+  process.env.CORS_ORIGIN_USER,
+  process.env.CORS_ORIGIN_AUTHOR,
+].filter((origin): origin is string => Boolean(origin));
+
+if (corsOrigins.length > 0) {
+  app.use(
+    cors({
+      origin: corsOrigins,
+    }),
+  );
+}
 app.use(express.json());
 app.use(apiLimiter);
 app.use(passport.initialize());
