@@ -3,11 +3,6 @@ import type { RequestHandler } from "express";
 import passport from "passport";
 
 export const optionalAuthenticateJWT: RequestHandler = (req, res, next) => {
-  if (!req.headers.authorization) {
-    next();
-    return;
-  }
-
   passport.authenticate(
     "jwt",
     { session: false },

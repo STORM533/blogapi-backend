@@ -8,10 +8,11 @@ A RESTful API backend for a blogging platform. Supports user authentication, rol
 - **Runtime**: Node.js
 - **Framework**: Express 5
 - **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Auth**: Passport.js (JWT + Local strategies), bcrypt
+- **ORM**: Prisma (with `@prisma/adapter-pg`)
+- **Auth**: Passport.js (JWT + Local strategies), bcrypt, jsonwebtoken
 - **Security**: Helmet, CORS, express-rate-limit
 - **Validation**: express-validator
+- **Other**: cookie-parser (HTTP-only JWT cookies), dotenv, tsx (dev runner)
 
 ## Project Structure
 
@@ -23,10 +24,12 @@ src/
     auth.controller.ts
     posts.controller.ts
     comments.controller.ts
+    users.controller.ts
   services/              # Business logic
     auth.service.ts
     posts.service.ts
     comments.service.ts
+    users.service.ts
   middleware/             # Auth, validation, error handling
     auth.ts
     authorize.ts
@@ -40,9 +43,11 @@ src/
     auth.routes.ts
     posts.routes.ts
     comments.routes.ts
+    users.routes.ts
   types/                 # TypeScript type definitions
   lib/                   # Prisma client singleton
-  errors/                # Custom error classes
+  errors/                # Custom error classes (AppError)
+  generated/             # Prisma generated client
 prisma/
   schema.prisma          # Database schema
   migrations/            # Database migrations
@@ -76,15 +81,18 @@ postman/                 # API test collection
    npm run dev
    ```
 
-   The server runs on `http://localhost:3000`.
+   The server runs on `http://localhost:3000` by default.
 
 ## Environment Variables
 
-| Variable       | Description                       | Example                                            |
-| -------------- | --------------------------------- | -------------------------------------------------- |
-| `DATABASE_URL` | PostgreSQL connection string      | `postgresql://user:password@localhost:5432/dbname` |
-| `JWT_SECRET`   | Secret key for signing JWT tokens | `your-secret-key`                                  |
-| `NODE_ENV`     | Environment mode                  | `development`                                      |
+| Variable            | Description                       | Example                                            |
+| ------------------- | --------------------------------- | -------------------------------------------------- |
+| `DATABASE_URL`      | PostgreSQL connection string      | `postgresql://user:password@localhost:5432/dbname` |
+| `JWT_SECRET`        | Secret key for signing JWT tokens | `your-secret-key`                                  |
+| `NODE_ENV`          | Environment mode                  | `development`                                      |
+| `PORT`              | Server listening port             | `3000` (default)                                   |
+| `CORS_ORIGIN_USER`  | Allowed CORS origin for user app  | `http://localhost:5173`                             |
+| `CORS_ORIGIN_AUTHOR`| Allowed CORS origin for author app| `http://localhost:5174`                             |
 
 ## Available Scripts
 
@@ -106,12 +114,14 @@ postman/                 # API test collection
 | ------ | -------------- | ----------------------------- |
 | POST   | `/auth/signup` | Register a new user           |
 | POST   | `/auth/login`  | Login and receive a JWT token |
+| POST   | `/auth/logout` | Clear JWT cookie              |
 
 ### Posts
 
 | Method | Endpoint             | Auth     | Role   | Description                                                   |
 | ------ | -------------------- | -------- | ------ | ------------------------------------------------------------- |
 | GET    | `/posts`             | Optional | -      | List posts (published only for guests/users; all for authors) |
+| GET    | `/posts/stats`       | Yes      | AUTHOR | Get post statistics (total, published, drafts, comments)      |
 | GET    | `/posts/:id`         | Optional | -      | Get a single post with comments                               |
 | POST   | `/posts`             | Yes      | AUTHOR | Create a new post                                             |
 | PATCH  | `/posts/:id`         | Yes      | AUTHOR | Update a post                                                 |
@@ -127,10 +137,21 @@ postman/                 # API test collection
 | PATCH  | `/comments/:id`           | Yes      | Update own comment               |
 | DELETE | `/comments/:id`           | Yes      | Delete comment (owner or author) |
 
+### Users
+
+| Method | Endpoint       | Auth | Description                                     |
+| ------ | -------------- | ---- | ----------------------------------------------- |
+| GET    | `/me`          | Yes  | Get the current authenticated user's profile    |
+| GET    | `/me/comments` | Yes  | Get the current user's comments (paginated)     |
+
 ## Database Schema
 
-- **User**: id, username, email, password, role (USER/AUTHOR), createdAt
+- **User**: id, username (`@unique`), email (`@unique`), password, role (USER/AUTHOR), createdAt
 - **Post**: id, title, content, published, timestamps, authorId
 - **Comment**: id, content, timestamps, userId, postId
 
 Cascade deletes are enabled: deleting a user removes their posts and comments; deleting a post removes its comments.
+
+## Frontend
+
+See [blogapi-frontend](https://github.com/STORM533/blogapi-frontend) for the React frontend (user app + author dashboard).
