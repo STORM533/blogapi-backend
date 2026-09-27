@@ -28,7 +28,7 @@ RUN npm ci --omit=dev
 
 COPY --from=build /App/dist ./dist
 COPY --from=build /App/src/generated/prisma ./src/generated/prisma
-
+USER node
 EXPOSE 3000
 
 CMD ["npm", "start"]
