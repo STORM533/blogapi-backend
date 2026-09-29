@@ -6,6 +6,7 @@ import errorHandler from "./middleware/errorHandler.js";
 import { apiLimiter } from "./middleware/rateLimiter.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { commentsRouter } from "./routes/comments.routes.js";
+import { healthRouter } from "./routes/health.routes.js";
 import { postsRouter } from "./routes/posts.routes.js";
 import { usersRouter } from "./routes/users.routes.js";
 import helmet from "helmet";
@@ -32,6 +33,7 @@ app.use(passport.initialize());
 
 app.use("/auth", authRouter);
 app.use("/posts", postsRouter);
+app.use("/health", healthRouter);
 app.use(usersRouter);
 app.use(commentsRouter);
 
