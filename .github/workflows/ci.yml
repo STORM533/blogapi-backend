@@ -31,3 +31,5 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: build docker image
+        run: docker build -t blog-api:ci .
