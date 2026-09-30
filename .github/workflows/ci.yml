@@ -20,26 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::859294994916:role/GitHubActions-BlogAPI
-          aws-region: ap-south-1
-
-      - name: login to aws
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Tag Docker image
-        run: |
-          docker tag blog-api:ci \
-            859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ github.sha }}
-
-      - name: Push Docker image
-        run: |
-          docker push \
-            859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ github.sha }}
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,5 +35,24 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: build docker image
+      - name: Build docker image
         run: docker build -t blog-api:ci .
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::859294994916:role/GitHubActions-BlogAPI
+          aws-region: ap-south-1
+
+      - name: Login to amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Tag Docker image
+        run: |
+          docker tag blog-api:ci \
+            859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ github.sha }}
+
+      - name: Push Docker image
+        run: |
+          docker push \
+            859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ github.sha }}
