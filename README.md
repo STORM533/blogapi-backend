@@ -85,14 +85,14 @@ postman/                 # API test collection
 
 ## Environment Variables
 
-| Variable            | Description                       | Example                                            |
-| ------------------- | --------------------------------- | -------------------------------------------------- |
-| `DATABASE_URL`      | PostgreSQL connection string      | `postgresql://user:password@localhost:5432/dbname` |
-| `JWT_SECRET`        | Secret key for signing JWT tokens | `your-secret-key`                                  |
-| `NODE_ENV`          | Environment mode                  | `development`                                      |
-| `PORT`              | Server listening port             | `3000` (default)                                   |
-| `CORS_ORIGIN_USER`  | Allowed CORS origin for user app  | `http://localhost:5173`                             |
-| `CORS_ORIGIN_AUTHOR`| Allowed CORS origin for author app| `http://localhost:5174`                             |
+| Variable             | Description                        | Example                                            |
+| -------------------- | ---------------------------------- | -------------------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string       | `postgresql://user:password@localhost:5432/dbname` |
+| `JWT_SECRET`         | Secret key for signing JWT tokens  | `your-secret-key`                                  |
+| `NODE_ENV`           | Environment mode                   | `development`                                      |
+| `PORT`               | Server listening port              | `3000` (default)                                   |
+| `CORS_ORIGIN_USER`   | Allowed CORS origin for user app   | `http://localhost:5173`                            |
+| `CORS_ORIGIN_AUTHOR` | Allowed CORS origin for author app | `http://localhost:5174`                            |
 
 ## Available Scripts
 
@@ -139,10 +139,10 @@ postman/                 # API test collection
 
 ### Users
 
-| Method | Endpoint       | Auth | Description                                     |
-| ------ | -------------- | ---- | ----------------------------------------------- |
-| GET    | `/me`          | Yes  | Get the current authenticated user's profile    |
-| GET    | `/me/comments` | Yes  | Get the current user's comments (paginated)     |
+| Method | Endpoint       | Auth | Description                                  |
+| ------ | -------------- | ---- | -------------------------------------------- |
+| GET    | `/me`          | Yes  | Get the current authenticated user's profile |
+| GET    | `/me/comments` | Yes  | Get the current user's comments (paginated)  |
 
 ## Database Schema
 
