@@ -5,3 +5,4 @@ dist/
 .gitignore
 postman/Blog_API_Local.postman_environment.json
 tsconfig.tsbuildinfo
+src/generated/prisma/

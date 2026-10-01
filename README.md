@@ -16,7 +16,7 @@ A RESTful API backend for a blogging platform. Supports user authentication, rol
 
 ## Project Structure
 
-```
+```bash
 src/
   server.ts              # Entry point
   app.ts                 # Express app configuration
@@ -155,4 +155,3 @@ Cascade deletes are enabled: deleting a user removes their posts and comments; d
 ## Frontend
 
 See [blogapi-frontend](https://github.com/STORM533/blogapi-frontend) for the React frontend (user app + author dashboard).
-CI/CD pipeline test
