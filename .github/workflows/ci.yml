@@ -8,6 +8,13 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: "Existing ECR image SHA to deploy"
+        required: true
+        type: string
+
 jobs:
   ci:
     runs-on: ubuntu-latest
