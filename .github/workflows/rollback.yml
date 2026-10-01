@@ -39,10 +39,9 @@ jobs:
             --parameters 'commands=[
               "set -e",
               "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 859294994916.dkr.ecr.ap-south-1.amazonaws.com",
-              "docker pull 859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ inputs.release_sha }}",
-              "docker stop blog-api || true",
-              "docker rm blog-api || true",
-              "docker run -d --name blog-api --restart unless-stopped --memory=512m --read-only --tmpfs /tmp -p 127.0.0.1:3000:3000 --env-file /etc/blog-api/.env -v /etc/blog-api/global-bundle.pem:/etc/blog-api/global-bundle.pem:ro 859294994916.dkr.ecr.ap-south-1.amazonaws.com/repo-api:${{ inputs.release_sha }}",
+              "export IMAGE_TAG=${{ inputs.release_sha }}",
+              "docker compose -f /etc/blog-api/compose.yml pull",
+              "docker compose -f /etc/blog-api/compose.yml up -d",
               "sleep 5",
               "curl --fail http://127.0.0.1:3000/health/live"
             ]' \
