@@ -155,3 +155,4 @@ Cascade deletes are enabled: deleting a user removes their posts and comments; d
 ## Frontend
 
 See [blogapi-frontend](https://github.com/STORM533/blogapi-frontend) for the React frontend (user app + author dashboard).
+CI/CD pipeline test
