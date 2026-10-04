@@ -11,6 +11,7 @@ A RESTful API backend for a blogging platform. Supports user authentication, rol
 - **ORM**: Prisma (with `@prisma/adapter-pg`)
 - **Auth**: Passport.js (JWT + Local strategies), bcrypt, jsonwebtoken
 - **Security**: Helmet, CORS, express-rate-limit
+- **Testing**: Vitest + SuperTest (integration tests against a dedicated `test_blog_api` PostgreSQL database)
 - **Validation**: express-validator
 - **Other**: cookie-parser (HTTP-only JWT cookies), dotenv, tsx (dev runner)
 
@@ -51,6 +52,13 @@ src/
 prisma/
   schema.prisma          # Database schema
   migrations/            # Database migrations
+tests/
+  setup.ts               # Test env bootstrap (NODE_ENV=test before app imports)
+  helpers/               # DB reset, factories, JWT auth, supertest app
+  unit/                  # Middleware tests (mocked req/res, no DB)
+  integration/           # Full-stack route tests (supertest → Prisma → PostgreSQL)
+scripts/
+  setup-test-db.mjs      # Create + migrate the test database
 postman/                 # API test collection
 ```
 
@@ -85,26 +93,89 @@ postman/                 # API test collection
 
 ## Environment Variables
 
-| Variable             | Description                        | Example                                            |
-| -------------------- | ---------------------------------- | -------------------------------------------------- |
-| `DATABASE_URL`       | PostgreSQL connection string       | `postgresql://user:password@localhost:5432/dbname` |
-| `JWT_SECRET`         | Secret key for signing JWT tokens  | `your-secret-key`                                  |
-| `NODE_ENV`           | Environment mode                   | `development`                                      |
-| `PORT`               | Server listening port              | `3000` (default)                                   |
-| `CORS_ORIGIN_USER`   | Allowed CORS origin for user app   | `http://localhost:5173`                            |
-| `CORS_ORIGIN_AUTHOR` | Allowed CORS origin for author app | `http://localhost:5174`                            |
+| Variable             | Description                                                              | Example                                                   |
+| -------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------- |
+| `DATABASE_URL`       | PostgreSQL connection string                                             | `postgresql://user:password@localhost:5432/dbname`        |
+| `TEST_DATABASE_URL`  | Test database URL (`NODE_ENV=test`); `.env` is gitignored — add manually | `postgresql://user:password@localhost:5432/test_blog_api` |
+| `JWT_SECRET`         | Secret key for signing JWT tokens                                        | `your-secret-key`                                         |
+| `NODE_ENV`           | Environment mode                                                         | `development`                                             |
+| `PORT`               | Server listening port                                                    | `3000` (default)                                          |
+| `CORS_ORIGIN_USER`   | Allowed CORS origin for user app                                         | `http://localhost:5173`                                   |
+| `CORS_ORIGIN_AUTHOR` | Allowed CORS origin for author app                                       | `http://localhost:5174`                                   |
 
 ## Available Scripts
 
-| Script         | Command                | Description                      |
-| -------------- | ---------------------- | -------------------------------- |
-| `dev`          | `npm run dev`          | Start dev server with hot-reload |
-| `build`        | `npm run build`        | Compile TypeScript to `dist/`    |
-| `start`        | `npm start`            | Run the production build         |
-| `lint`         | `npm run lint`         | Run ESLint                       |
-| `lint:fix`     | `npm run lint:fix`     | Run ESLint with auto-fix         |
-| `format`       | `npm run format`       | Format code with Prettier        |
-| `format:check` | `npm run format:check` | Check formatting without writing |
+| Script          | Command                 | Description                                 |
+| --------------- | ----------------------- | ------------------------------------------- |
+| `dev`           | `npm run dev`           | Start dev server with hot-reload            |
+| `build`         | `npm run build`         | Compile TypeScript to `dist/`               |
+| `start`         | `npm start`             | Run the production build                    |
+| `lint`          | `npm run lint`          | Run ESLint                                  |
+| `lint:fix`      | `npm run lint:fix`      | Run ESLint with auto-fix                    |
+| `format`        | `npm run format`        | Format code with Prettier                   |
+| `format:check`  | `npm run format:check`  | Check formatting without writing            |
+| `test`          | `npm test`              | Run all tests once (Vitest)                 |
+| `test:watch`    | `npm run test:watch`    | Run tests in watch mode                     |
+| `test:coverage` | `npm run test:coverage` | Run tests with a coverage report (no gates) |
+| `test:db:setup` | `npm run test:db:setup` | Create and migrate the test database        |
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev/) + [SuperTest](https://github.com/ladjs/supertest) against the exported Express app (`src/app.ts`) — the server entry (`src/server.ts`) is never started during tests.
+
+### Requirements
+
+- A running PostgreSQL instance reachable at `localhost:5432` (host service or Docker).
+- A dedicated test database — tests **never** fall back to `DATABASE_URL`.
+
+### Environment variables
+
+`.env` is gitignored, so add the test database URL manually:
+
+```properties
+TEST_DATABASE_URL=postgresql://storm:STORM@localhost:5432/test_blog_api
+```
+
+| Variable            | Used when       | Purpose                                    |
+| ------------------- | --------------- | ------------------------------------------ |
+| `TEST_DATABASE_URL` | `NODE_ENV=test` | Connection string for `test_blog_api`      |
+| `DATABASE_URL`      | otherwise       | Development/production database            |
+| `JWT_SECRET`        | always          | Signs/verifies tokens in integration tests |
+
+`NODE_ENV=test` is enforced by `tests/setup.ts` before any application module loads, so `src/lib/prisma.ts` always selects `TEST_DATABASE_URL` in tests.
+
+### One-time setup
+
+```bash
+npm run test:db:setup   # CREATE DATABASE test_blog_api + prisma migrate deploy
+```
+
+The script fails immediately if `TEST_DATABASE_URL` is missing.
+
+### Running tests
+
+```bash
+npm test                # full suite, once
+npm run test:watch      # watch mode
+npm run test:coverage   # coverage report (no thresholds enforced)
+```
+
+### Test database behavior
+
+- **Name**: `test_blog_api` (prefixed `test_` to distinguish it from real databases).
+- **Reset**: every integration test starts from `resetDb()` — a `$transaction` that wipes `Comment`, `Post`, and `User` rows, so no test depends on another.
+- **Sequential**: test files run one after another (`fileParallelism: false`) because the suites share one database.
+- **Isolation**: tests live in `tests/` (outside `src/`), so they never enter the production build (`rootDir: "./src"`).
+
+### Layout
+
+```
+tests/
+  setup.ts            # loads .env, forces NODE_ENV=test (before app imports)
+  helpers/            # db reset, factories (direct Prisma writes), JWT auth, supertest app
+  unit/               # middleware tests with mocked req/res (no DB)
+  integration/        # full-stack: supertest → middleware → services → Prisma → PostgreSQL
+```
 
 ## API Endpoints
 

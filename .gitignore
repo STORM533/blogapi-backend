@@ -4,3 +4,4 @@ dist/
 /src/generated/prisma
 /postman/Blog_API_Local.postman_environment.json
 tsconfig.tsbuildinfo
+coverage/

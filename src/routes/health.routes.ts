@@ -15,7 +15,9 @@ healthRouter.get(
       await prisma.$queryRaw`SELECT 1`;
       res.status(200).json({ status: "ok" });
     } catch {
-      res.status(503).json({ status: "error", message: "Database unavailable" });
+      res
+        .status(503)
+        .json({ status: "error", message: "Database unavailable" });
     }
   }),
 );

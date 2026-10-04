@@ -101,8 +101,14 @@ postsRouter.patch<PostParams, object, UpdatePostBody>(
   param("id").isInt({ min: 1 }).withMessage("ID must be a positive integer"),
 
   body().custom((_, { req }) => {
-    if (req.body.title === undefined && req.body.content === undefined && req.body.published === undefined) {
-      throw new Error("At least one of title, content, or published is required");
+    if (
+      req.body.title === undefined &&
+      req.body.content === undefined &&
+      req.body.published === undefined
+    ) {
+      throw new Error(
+        "At least one of title, content, or published is required",
+      );
     }
 
     return true;
