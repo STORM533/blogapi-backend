@@ -4,7 +4,12 @@ import prettierConfig from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["dist/", "node_modules/", "src/middleware/errorHandler.ts"],
+    ignores: [
+      "dist/",
+      "node_modules/",
+      "coverage/",
+      "src/middleware/errorHandler.ts",
+    ],
   },
   {
     files: ["**/*.ts"],
